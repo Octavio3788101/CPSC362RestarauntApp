@@ -1,0 +1,30 @@
+// Retrieve the shards as a ShardInformation[] instance.
+var shards = GetShards();
+
+var results = new ConcurrentBag<string>();
+
+// Execute the query against each shard in the shard list.
+// This list would typically be retrieved from configuration
+// or from a root/primary shard store.
+Parallel.ForEach(shards, shard =>
+{
+  // NOTE: Transient fault handling isn't included,
+  // but should be incorporated when used in a real world application.
+  using (var con = new SqlConnection(shard.ConnectionString))
+  {
+    con.Open();
+    var cmd = new SqlCommand("SELECT ... FROM ...", con);
+
+    Trace.TraceInformation("Executing command against shard: {0}", shard.Id);
+
+    var reader = cmd.ExecuteReader();
+    // Read the results in to a thread-safe data structure.
+    while (reader.Read())
+    {
+      results.Add(reader.GetString(0));
+    }
+  }
+});
+
+Trace.TraceInformation("Fanout query complete - Record Count: {0}",
+                        results.Count);
