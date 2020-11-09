@@ -1,0 +1,29 @@
+private IEnumerable<ShardInformation> GetShards()
+{
+
+
+  // This retrieves the connection information from a shard store
+  // (commonly a root database).
+  return new[]
+  {
+  
+    new ShardInformation
+    {
+      Id = 1,
+      ConnectionString = Customers
+    },
+    new ShardInformation
+    {
+      Id = 2,
+      ConnectionString= Orders
+    },
+    new ShardInformation
+    {
+      Id = 3,
+      ConnectionString= Inventory
+    }
+     
+  };
+  
+  
+}
